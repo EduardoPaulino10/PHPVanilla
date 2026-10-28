@@ -1,55 +1,51 @@
 <?php
 declare(strict_types=1);
 
-//Criar a Classe responsável por fornecer uma instancia única de conexão usando PDO com o Banco de Dados (Singleton)
+/**
+ * Gerenciador de conexao unica com o PostgreSQL via PDO (Singleton).
+ */
+final class ConexaoBanco {
+    private static ?PDO $instancia = null;
 
-final class ConexaoBanco{
-    //atributos => são as caracteristicas do objeto
-    private static ?PDO $instancia = null; // muda de acordo com a conexao. inicialmente é nulo , mas depois pode mudar para conectado
-
-    //métodos ( ações que o objeto pode fazer)
-
-    // construtor
-    private function __construct(){} //construtor vazio e privado( técnica do singleton)
-
-    // para garantia de segurança // Bloqueio de Clonagem // Desserialização
+    private function __construct() {}
     private function __clone(): void {}
-    public function __wakeup(): void {throw new \Exception("Desserialização não permitida no Singleton");}
 
-    //Fazer a técnica de obterConexao PDO
-    public static function obterConexao(string $caminhoConfig):PDO {
-        // so vou criar uma nova conexão se não exisitir outra
-        if(self::$instancia === null){
-            //vou criar uma conexão
-            $config = self::carregarArquivoConfig($caminhoConfig);
-            self::$instancia = self::estabelecerConexao($config);
+    public function __wakeup(): void {
+        throw new \Exception("Desserializacao nao permitida.");
+    }
+
+    /**
+     * Retorna a conexao ativa existente ou instancia uma nova sob demanda.
+     */
+    public static function obterConexao(string $caminhoConfig): PDO {
+        if (self::$instancia === null) {
+            $config = self::carregarConfig($caminhoConfig);
+            self::$instancia = self::criarConexao($config);
         }
         return self::$instancia;
     }
 
-    //Lê e valida os parametros do arquivo de configuração , dados envelopados .ini ou .env
-    private static function carregarArquivoConfig(string $caminho):array{
-        if(!file_exists($caminho)){
-            throw new \RuntimeException("Arquivo de configuração não encontrado em : {$caminho}");
+    /**
+     * Le o arquivo INI com as credenciais do PostgreSQL.
+     */
+    private static function carregarConfig(string $caminho): array {
+        if (!file_exists($caminho)) {
+            throw new \RuntimeException("Arquivo de configuracao ausente.");
         }
         $dados = parse_ini_file($caminho, true);
-        if($dados === false || !isset($dados["database"])){
-            throw new \RuntimeException("Seção [database] ausente no arquivo de configuração");
+        if ($dados === false || !isset($dados['database'])) {
+            throw new \RuntimeException("Secao [database] invalida no arquivo INI.");
         }
-        return $dados["database"];
+        return $dados['database'];
     }
 
-    //Criar a instancia nativa do PDO aplicando as flags de Segurança do PDO
-    private static function estabelecerConexao(array $cfg): PDO{
-        $dsn = sprintf(
-            //"pgsql:host=127.0.0.1;port=5432;dbname=escola_biblioteca"
-            "%s:host=%s;port=%s;dbname=%s",
-            $cfg["db_driver"],
-            $cfg["db_host"],
-            $cfg["db_port"],
-            $cfg["db_name"],
-        );
-        //colocar a Flag do PDO
+    /**
+     * Instancia o objeto PDO com as flags de seguranca recomendadas.
+     */
+    private static function criarConexao(array $cfg): PDO {
+        $dsn = sprintf("%s:host=%s;port=%s;dbname=%s",
+            $cfg['db_driver'], $cfg['db_host'], $cfg['db_port'], $cfg['db_name']);
+
         $opcoes = [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -57,8 +53,6 @@ final class ConexaoBanco{
             PDO::ATTR_TIMEOUT            => 5
         ];
 
-        return new PDO($dsn, $cfg["db_user"], $cfg["db_pass"], $opcoes);
+        return new PDO($dsn, $cfg['db_user'], $cfg['db_pass'], $opcoes);
     }
-
 }
-?>
