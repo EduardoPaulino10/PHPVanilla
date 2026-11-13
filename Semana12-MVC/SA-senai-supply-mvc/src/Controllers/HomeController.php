@@ -1,6 +1,11 @@
 <?php
 declare(strict_types=1);
 
+namespace App\Controllers;
+use App\Models\Produto;
+use App\Core\Controller;
+use App\Models\Movimentacao;
+
 final class HomeController extends Controller {
     //subClasse de controller
 

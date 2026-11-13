@@ -1,12 +1,14 @@
 <?php
 declare(strict_types=1);
 
+namespace App\Core;
+
 //Serviço de centralização de logs corporativos para persistência na raiz do sistema
 
 final class Logger{
     //Registrar eventos de Log para Auditoria
     //função para gravar no arquivo de log
-    private static function gravar(string $nivel, string $mensagem, array$contexto): void{
+    private static function gravar(string $nivel, string $mensagem, array $contexto): void{
         $caminhoDir = dirname(__DIR__, 2) . "/logs";
         if(!is_dir($caminhoDir)){
             //se não exisitr o arquivo crie o arquivo

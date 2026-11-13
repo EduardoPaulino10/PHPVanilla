@@ -1,6 +1,9 @@
 <?php
 declare(strict_types=1);
 
+namespace app\Models;
+
+use App\Core\ConexaoBanco;
 use PDO;
 
 final class Produto{

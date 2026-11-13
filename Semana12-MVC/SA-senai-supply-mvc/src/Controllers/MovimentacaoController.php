@@ -1,6 +1,14 @@
 <?php
 declare(strict_types=1);
 
+namespace App\Controllers;
+
+use App\Core\Controller;
+use App\Core\Guard\AuthGuard;
+use App\Models\Movimentacao;
+use app\Models\Produto;
+use DomainException;
+
 final class MovimentacaoController extends Controller {
 
     //fomrulário para registrar movimentação

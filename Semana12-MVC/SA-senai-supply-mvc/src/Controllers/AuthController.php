@@ -1,6 +1,13 @@
 <?php
 declare(strict_types=1);
 
+namespace App\Controllers;
+
+use App\Core\Controller;
+use App\Models\Usuario;
+use App\Core\Logger;
+
+
 final class AuthController extends Controller {
     // abrir o formulário de login
     public function formularioLogin(): void {
